@@ -17,9 +17,8 @@ class TestShifter(unittest.TestCase):
         init_repository(self.repo_path, True)
 
     def test_unaffected_with_0_amount(self):
-        repo = Repository(self.repo_path)
-        tree = repo.TreeBuilder()
-        empty_tree = tree.write()
+        repo = self.get_repo()
+        empty_tree = self.get_empty_tree_oid(repo)
         root = repo.create_commit(REF, SIG, SIG, 'root #1', empty_tree, [])
         repo.create_commit(REF, SIG, SIG, 'leaf #2', empty_tree, [root])
         del repo
@@ -29,9 +28,8 @@ class TestShifter(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_unaffected_without_issues(self):
-        repo = Repository(self.repo_path)
-        tree = repo.TreeBuilder()
-        empty_tree = tree.write()
+        repo = self.get_repo()
+        empty_tree = self.get_empty_tree_oid(repo)
         root = repo.create_commit(REF, SIG, SIG, 'root', empty_tree, [])
         repo.create_commit(REF, SIG, SIG, 'leaf', empty_tree, [root])
         del repo
@@ -40,6 +38,12 @@ class TestShifter(unittest.TestCase):
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
     
+    def get_repo(self):
+        return Repository(self.repo_path)
+
+    def get_empty_tree_oid(self, repo):
+        return repo.TreeBuilder().write()
+
     def get_repo_filelist(self):
         return list(walk(path.join(self.repo_path, 'objects')))
 
