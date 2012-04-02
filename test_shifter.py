@@ -24,8 +24,8 @@ class TestShifter(unittest.TestCase):
         del repo
         before = self.get_repo_filelist()
         changelog, _ = shift(0, self.repo_path)
-        for k, v in changelog.iteritems():
-            self.assertEqual(k, v)
+        for old, new in changelog.iteritems():
+            self.assertEqual(old, new)
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
 
