@@ -24,7 +24,7 @@ class TestShifter(unittest.TestCase):
         repo.create_commit(REF, SIG, SIG, 'leaf #2', empty_tree, [root])
         del repo
         before = self.get_repo_filelist()
-        shift(1, self.repo_path)
+        shift(0, self.repo_path)
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
 
