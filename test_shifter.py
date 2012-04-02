@@ -23,7 +23,9 @@ class TestShifter(unittest.TestCase):
         repo.create_commit(REF, SIG, SIG, 'leaf #2', empty_tree, [root])
         del repo
         before = self.get_repo_filelist()
-        shift(0, self.repo_path)
+        changelog, _ = shift(0, self.repo_path)
+        for k, v in changelog.iteritems():
+            self.assertEqual(k, v)
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
 
@@ -34,7 +36,8 @@ class TestShifter(unittest.TestCase):
         repo.create_commit(REF, SIG, SIG, 'leaf', empty_tree, [root])
         del repo
         before = self.get_repo_filelist()
-        shift(42, self.repo_path)
+        changelog, _ = shift(42, self.repo_path)
+        self.assertEqual(changelog, {})
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
     
