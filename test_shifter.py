@@ -2,6 +2,7 @@
 
 from shifter import shift
 from tempfile import mkdtemp
+from operator import attrgetter
 from shutil import rmtree
 from pygit2 import init_repository, Repository, Signature
 from time import time
@@ -40,6 +41,29 @@ class TestShifter(unittest.TestCase):
         self.assertEqual(changelog, {})
         after = self.get_repo_filelist()
         self.assertEqual(before, after)
+
+    def test_merged_tree(self):
+        repo = self.get_repo()
+        empty_tree = self.get_empty_tree_oid(repo)
+        root = repo.create_commit(REF, SIG, SIG, 'root #1', empty_tree, [])
+        leaf = repo.create_commit(REF, SIG, SIG, 'leaf #2', empty_tree, [root])
+        side = repo.create_commit(REF, SIG, SIG, '#3 side', empty_tree, [root])
+        repo.create_commit(REF, SIG, SIG, 'merge #4', empty_tree, [leaf, side])
+        del repo
+        changelog, reference = shift(10, self.repo_path)
+        self.assertEqual(len(changelog), 4)
+        repo = self.get_repo()
+        registr_head = repo.lookup_reference(reference).resolve()
+        commit = repo[registr_head.oid]
+        self.assertEqual(commit.message, 'merge #14')
+        self.assertEqual(len(commit.parents), 2)
+        for parent in commit.parents:
+            self.assertEqual(len(parent.parents), 1)
+            self.assertEqual(parent.parents[0].message, 'root #11')
+        c1, c2 = sorted(commit.parents, key=attrgetter('message'))
+        self.assertEqual(c1.message, '#13 side')
+        self.assertEqual(c2.message, 'leaf #12')
+        self.assertEqual(c1.parents[0].oid, c2.parents[0].oid)
     
     def get_repo(self):
         return Repository(self.repo_path)
