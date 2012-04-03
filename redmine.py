@@ -13,6 +13,7 @@ TABLES = [
 
 COMMIT_ID_RE = r'(commit:)?[0-9a-f]{7,40}'
 ID_COLUMN = 'id'
+ENCODING = 'utf-8'
 
 def test_db_connection(db_url):
     db_connect(db_url).close()
@@ -29,9 +30,14 @@ def map_changelog(db_url, changelog):
             result = connection.execute(table.select().where(commit_id_clause))
             to_replace = []
             for row_id, content in result:
-                replaced = re.sub(COMMIT_ID_RE, replacer.repl, content)
-                if replaced != content:
-                    to_replace.append((row_id, replaced))
+                unicode_db = isinstance(content, unicode)
+                content_str = (content.encode(ENCODING) if unicode_db
+                        else content)
+                replaced_str = re.sub(COMMIT_ID_RE, replacer.repl, content_str)
+                if replaced_str != content_str:
+                    replaced_db = (replaced_str.decode(ENCODING) if unicode_db
+                            else replaced_str)
+                    to_replace.append((row_id, replaced_db))
             result.close()
             id_col = column(ID_COLUMN)
             for row_id, content in to_replace:
