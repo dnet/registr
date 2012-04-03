@@ -26,7 +26,7 @@ def map_changelog(db_url, changelog):
             table = Table(table_name, metadata,
                     Column(ID_COLUMN, Integer, primary_key=True),
                     Column(column_name, String(255)))
-            commit_id_clause = column(column_name).match(COMMIT_ID_RE)
+            commit_id_clause = column(column_name).op('regexp')(COMMIT_ID_RE)
             result = connection.execute(table.select().where(commit_id_clause))
             to_replace = []
             for row_id, content in result:

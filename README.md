@@ -9,8 +9,6 @@ Importing projects into Redmine from software project management tools that trac
 Redmine tables and fields used
 ------------------------------
 
-Note: on MySQL the storage engine needs to be set to MyISAM for shifting to work because of the need for FULLTEXT support.
-
  - `journals`.`notes`
  - `time_entries`.`comments`
  - `wiki_content_versions`.`data`
