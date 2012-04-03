@@ -49,10 +49,10 @@ class Replacer(object):
         commit_id = match.group(0)
         sha = commit_id[7:] if commit_id.startswith('commit:') else commit_id
         oid = unhexlify(sha if len(sha) % 2 == 0 else sha[:-1])
-        if len(sha) == 40:
-            return 'commit:' + self.changelog.get(oid, sha)
+        if oid in self.changelog:
+            return 'commit:' + hexlify(self.changelog[oid])
         else:
             for old, new in self.changelog.iteritems():
                 if old.startswith(oid):
                     return 'commit:' + hexlify(new)[:7]
-            return commit_id
+        return commit_id
