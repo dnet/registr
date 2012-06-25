@@ -28,16 +28,7 @@ def map_changelog(db_url, changelog):
                     Column(column_name, String(255)))
             commit_id_clause = column(column_name).op('regexp')(COMMIT_ID_RE)
             result = connection.execute(table.select().where(commit_id_clause))
-            to_replace = []
-            for row_id, content in result:
-                unicode_db = isinstance(content, unicode)
-                content_str = (content.encode(ENCODING) if unicode_db
-                        else content)
-                replaced_str = re.sub(COMMIT_ID_RE, replacer.repl, content_str)
-                if replaced_str != content_str:
-                    replaced_db = (replaced_str.decode(ENCODING) if unicode_db
-                            else buffer(replaced_str))
-                    to_replace.append((row_id, replaced_db))
+            to_replace = list(replacer.filter_and_map_results(result))
             result.close()
             id_col = column(ID_COLUMN)
             for row_id, content in to_replace:
@@ -50,6 +41,17 @@ def db_connect(db_url):
 class Replacer(object):
     def __init__(self, changelog):
         self.changelog = changelog
+
+    def filter_and_map_results(self, results):
+        for row_id, content in results:
+            unicode_db = isinstance(content, unicode)
+            content_str = (content.encode(ENCODING) if unicode_db
+                    else content)
+            replaced_str = re.sub(COMMIT_ID_RE, self.repl, content_str)
+            if replaced_str != content_str:
+                replaced_db = (replaced_str.decode(ENCODING) if unicode_db
+                        else buffer(replaced_str))
+                yield row_id, replaced_db
 
     def repl(self, match):
         commit_id = match.group(0)
