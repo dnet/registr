@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
+from contextlib import closing
 from sqlalchemy import create_engine, Table, Column, String, Integer, MetaData
 from sqlalchemy.sql import column
 from binascii import unhexlify, hexlify
@@ -27,9 +29,8 @@ def map_changelog(db_url, changelog):
                     Column(ID_COLUMN, Integer, primary_key=True),
                     Column(column_name, String(255)))
             commit_id_clause = column(column_name).op('regexp')(COMMIT_ID_RE)
-            result = connection.execute(table.select().where(commit_id_clause))
-            to_replace = list(replacer.filter_and_map_results(result))
-            result.close()
+            with closing(connection.execute(table.select().where(commit_id_clause))) as result:
+                to_replace = list(replacer.filter_and_map_results(result))
             id_col = column(ID_COLUMN)
             for row_id, content in to_replace:
                 update_where = table.update().where(id_col == row_id)
