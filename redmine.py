@@ -25,13 +25,12 @@ def map_changelog(db_url, changelog):
         metadata = MetaData()
         replacer = Replacer(changelog)
         for table_name, column_name in TABLES:
-            table = Table(table_name, metadata,
-                    Column(ID_COLUMN, Integer, primary_key=True),
+            id_col = Column(ID_COLUMN, Integer, primary_key=True)
+            table = Table(table_name, metadata, id_col,
                     Column(column_name, String(255)))
             commit_id_clause = column(column_name).op('regexp')(COMMIT_ID_RE)
             with closing(connection.execute(table.select().where(commit_id_clause))) as result:
                 to_replace = list(replacer.filter_and_map_results(result))
-            id_col = column(ID_COLUMN)
             for row_id, content in to_replace:
                 update_where = table.update().where(id_col == row_id)
                 connection.execute(update_where.values({column_name: content}))
