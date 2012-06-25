@@ -24,3 +24,5 @@ Dependencies
  - Python 2.x (tested on 2.7)
  - pygit2 (https://github.com/libgit2/pygit2)
  - SQLAlchemy (Debian/Ubuntu package: `python-sqlalchemy`)
+ - oursql for running `TestRedmineMySQL` test cases (https://launchpad.net/oursql/)
+ - MySQL server for running `TestRedmineMySQL` test cases (Debian/Ubuntu package: `mysql-server`)
