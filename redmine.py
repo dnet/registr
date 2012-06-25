@@ -3,7 +3,6 @@
 from __future__ import with_statement
 from contextlib import closing
 from sqlalchemy import create_engine, Table, Column, String, Integer, MetaData
-from sqlalchemy.sql import column
 from binascii import unhexlify, hexlify
 import re
 
@@ -26,9 +25,9 @@ def map_changelog(db_url, changelog):
         replacer = Replacer(changelog)
         for table_name, column_name in TABLES:
             id_col = Column(ID_COLUMN, Integer, primary_key=True)
-            table = Table(table_name, metadata, id_col,
-                    Column(column_name, String(255)))
-            commit_id_clause = column(column_name).op('regexp')(COMMIT_ID_RE)
+            content_col = Column(column_name, String(255))
+            table = Table(table_name, metadata, id_col, content_col)
+            commit_id_clause = content_col.op('regexp')(COMMIT_ID_RE)
             with closing(connection.execute(table.select().where(commit_id_clause))) as result:
                 to_replace = list(replacer.filter_and_map_results(result))
             for row_id, content in to_replace:
