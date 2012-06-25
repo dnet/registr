@@ -36,7 +36,7 @@ def map_changelog(db_url, changelog):
                 replaced_str = re.sub(COMMIT_ID_RE, replacer.repl, content_str)
                 if replaced_str != content_str:
                     replaced_db = (replaced_str.decode(ENCODING) if unicode_db
-                            else replaced_str)
+                            else buffer(replaced_str))
                     to_replace.append((row_id, replaced_db))
             result.close()
             id_col = column(ID_COLUMN)
