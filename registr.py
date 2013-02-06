@@ -22,6 +22,7 @@ def main(args):
 
 class InvalidUsageError(ValueError):
     def __init__(self, exename):
+        ValueError.__init__(self)
         self.exename = exename
 
     USAGE_ERROR_FMT = 'Usage: {exe} <amount> <path to repo> [database URL]'
