@@ -35,4 +35,4 @@ if __name__ == '__main__':
         main(sys.argv)
     except InvalidUsageError as iue:
         print(str(iue), file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(1)
